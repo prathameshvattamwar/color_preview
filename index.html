@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChromaStudio — Color & Gradient Previewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background mesh -->
+  <div class="bg-mesh">
+    <div class="mesh-orb orb-1"></div>
+    <div class="mesh-orb orb-2"></div>
+    <div class="mesh-orb orb-3"></div>
+  </div>
+
+  <div class="app-wrapper">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon"><i class="fa-solid fa-circle-half-stroke"></i></span>
+        <span class="logo-text">Chroma<strong>Studio</strong></span>
+      </div>
+      <div class="header-right">
+        <p class="header-sub">Color & Gradient Previewer</p>
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light / Dark Mode">
+          <span class="theme-icon-wrap">
+            <i class="fa-solid fa-sun theme-icon-light"></i>
+            <i class="fa-solid fa-moon theme-icon-dark"></i>
+          </span>
+          <span class="theme-toggle-label" id="theme-toggle-label">Light Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN PANEL -->
+    <main class="main-panel">
+
+      <!-- ====== LEFT PANEL ====== -->
+      <aside class="left-panel">
+
+        <!-- Type Toggle -->
+        <div class="section-block">
+          <label class="section-label"><i class="fa-solid fa-swatchbook"></i> Mode</label>
+          <div class="type-toggle">
+            <button class="toggle-btn active" id="btn-single" onclick="setMode('single')">
+              <i class="fa-solid fa-droplet"></i> Single Color
+            </button>
+            <button class="toggle-btn" id="btn-gradient" onclick="setMode('gradient')">
+              <i class="fa-solid fa-bars-staggered"></i> Gradient
+            </button>
+          </div>
+        </div>
+
+        <!-- ====== SINGLE COLOR SECTION ====== -->
+        <div id="single-section" class="color-section">
+          <div class="section-block">
+            <label class="section-label"><i class="fa-solid fa-palette"></i> Color</label>
+            <div class="color-input-row">
+              <div class="color-swatch-wrap">
+                <input type="color" id="single-color-picker" value="#6366f1" class="color-picker-hidden" />
+                <div class="color-swatch" id="single-swatch" style="background:#6366f1;" onclick="document.getElementById('single-color-picker').click()">
+                  <i class="fa-solid fa-eye-dropper"></i>
+                </div>
+              </div>
+              <div class="hex-input-wrap">
+                <span class="hex-hash">#</span>
+                <input type="text" id="single-hex" class="hex-input" value="6366f1" maxlength="6" placeholder="6366f1" />
+              </div>
+            </div>
+
+            <!-- Opacity -->
+            <div class="slider-block">
+              <div class="slider-header">
+                <span><i class="fa-solid fa-circle-half-stroke"></i> Opacity</span>
+                <span class="slider-val" id="single-opacity-val">100%</span>
+              </div>
+              <input type="range" class="range-slider" id="single-opacity" min="0" max="100" value="100" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== GRADIENT SECTION ====== -->
+        <div id="gradient-section" class="color-section hidden">
+
+          <!-- Gradient Type -->
+          <div class="section-block">
+            <label class="section-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Gradient Type</label>
+            <div class="type-toggle small-toggle">
+              <button class="toggle-btn active" id="btn-linear" onclick="setGradientType('linear')">
+                <i class="fa-solid fa-arrow-right"></i> Linear
+              </button>
+              <button class="toggle-btn" id="btn-radial" onclick="setGradientType('radial')">
+                <i class="fa-solid fa-circle-dot"></i> Radial
+              </button>
+            </div>
+          </div>
+
+          <!-- Angle (linear only) -->
+          <div class="section-block" id="angle-block">
+            <label class="section-label"><i class="fa-solid fa-rotate"></i> Angle</label>
+            <div class="angle-row">
+              <div class="angle-wheel-wrap">
+                <div class="angle-wheel" id="angle-wheel">
+                  <div class="angle-needle" id="angle-needle"></div>
+                </div>
+              </div>
+              <div class="angle-input-wrap">
+                <input type="number" id="angle-input" class="angle-number-input" value="90" min="0" max="360" />
+                <span class="deg-label">°</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gradient Slider -->
+          <div class="section-block">
+            <label class="section-label"><i class="fa-solid fa-sliders"></i> Color Stops</label>
+            <p class="hint-text"><i class="fa-solid fa-circle-info"></i> Click on track to add stop. Click dot to select.</p>
+            <div class="gradient-slider-wrap" id="gradient-slider-wrap">
+              <div class="gradient-track" id="gradient-track">
+                <!-- dots injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Active stop editor -->
+          <div class="section-block" id="stop-editor">
+            <label class="section-label"><i class="fa-solid fa-circle-nodes"></i> Edit Stop <span id="active-stop-index">1</span></label>
+            <div class="color-input-row">
+              <div class="color-swatch-wrap">
+                <input type="color" id="stop-color-picker" value="#6366f1" class="color-picker-hidden" />
+                <div class="color-swatch" id="stop-swatch" style="background:#6366f1;" onclick="document.getElementById('stop-color-picker').click()">
+                  <i class="fa-solid fa-eye-dropper"></i>
+                </div>
+              </div>
+              <div class="hex-input-wrap">
+                <span class="hex-hash">#</span>
+                <input type="text" id="stop-hex" class="hex-input" value="6366f1" maxlength="6" placeholder="6366f1" />
+              </div>
+              <button class="icon-btn danger-btn" id="remove-stop-btn" title="Remove Stop" onclick="removeActiveStop()">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+
+            <!-- Stop position -->
+            <div class="slider-block">
+              <div class="slider-header">
+                <span><i class="fa-solid fa-location-dot"></i> Position</span>
+                <span class="slider-val" id="stop-pos-val">0%</span>
+              </div>
+              <input type="range" class="range-slider accent-slider" id="stop-position" min="0" max="100" value="0" />
+            </div>
+
+            <!-- Stop opacity -->
+            <div class="slider-block">
+              <div class="slider-header">
+                <span><i class="fa-solid fa-circle-half-stroke"></i> Opacity</span>
+                <span class="slider-val" id="stop-opacity-val">100%</span>
+              </div>
+              <input type="range" class="range-slider" id="stop-opacity" min="0" max="100" value="100" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ====== PREVIEW MODE ====== -->
+        <div class="section-block">
+          <label class="section-label"><i class="fa-solid fa-eye"></i> Preview As</label>
+          <div class="preview-modes">
+            <button class="mode-chip active" data-mode="bg" onclick="setPreviewMode(this, 'bg')">
+              <i class="fa-solid fa-fill-drip"></i> Background
+            </button>
+            <button class="mode-chip" data-mode="button-bg" onclick="setPreviewMode(this, 'button-bg')">
+              <i class="fa-solid fa-computer-mouse"></i> Button BG
+            </button>
+            <button class="mode-chip" data-mode="text" onclick="setPreviewMode(this, 'text')">
+              <i class="fa-solid fa-font"></i> Text Color
+            </button>
+            <button class="mode-chip" data-mode="border" onclick="setPreviewMode(this, 'border')">
+              <i class="fa-regular fa-square"></i> Border
+            </button>
+            <button class="mode-chip" data-mode="card" onclick="setPreviewMode(this, 'card')">
+              <i class="fa-solid fa-layer-group"></i> Card
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+          <button class="btn-primary" onclick="applyPreview()">
+            <i class="fa-solid fa-play"></i> Preview
+          </button>
+          <button class="btn-secondary" onclick="copyCss()">
+            <i class="fa-solid fa-copy"></i> Copy CSS
+          </button>
+        </div>
+
+        <!-- CSS Output -->
+        <div class="css-output-box" id="css-output-box">
+          <div class="css-output-header">
+            <span><i class="fa-solid fa-code"></i> CSS Output</span>
+            <button class="copy-mini-btn" onclick="copyCss()" title="Copy"><i class="fa-regular fa-copy"></i></button>
+          </div>
+          <pre id="css-output-text">/* Click Preview to generate */</pre>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"><i class="fa-solid fa-check"></i> Copied to clipboard!</div>
+
+      </aside>
+
+      <!-- ====== RIGHT PANEL ====== -->
+      <section class="right-panel">
+        <div class="previewer-container" id="previewer-container">
+
+          <div class="previewer-toolbar">
+            <span class="previewer-label"><i class="fa-solid fa-display"></i> Live Preview</span>
+            <button class="icon-btn expand-btn" id="expand-btn" onclick="expandPreviewer()" title="Fullscreen">
+              <i class="fa-solid fa-expand"></i>
+            </button>
+          </div>
+
+          <!-- THE PREVIEW SCREEN -->
+          <div class="preview-screen" id="preview-screen">
+            <div class="preview-inner" id="preview-inner">
+              <!-- Content injected by JS based on mode -->
+            </div>
+          </div>
+
+          <!-- Info bar -->
+          <div class="previewer-infobar" id="previewer-infobar">
+            <span id="infobar-mode-label"><i class="fa-solid fa-fill-drip"></i> Background Mode</span>
+            <span id="infobar-css-preview">—</span>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FULLSCREEN OVERLAY -->
+    <div class="fullscreen-overlay hidden" id="fullscreen-overlay">
+      <button class="close-fullscreen-btn" id="close-fullscreen-btn" onclick="collapsePreviewer()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="fullscreen-preview" id="fullscreen-preview">
+        <!-- content cloned by JS -->
+      </div>
+      <div class="fs-info-bar">
+        <span id="fs-mode-label"></span>
+        <span id="fs-css-label"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
